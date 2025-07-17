@@ -26,7 +26,6 @@ uint64_t rand_() {
     return result & 0xFFFFFFFFF; // Mask to 36 bits (9 hex digits)
 }
 
-
 unsigned int memGen1()
 {
 	static unsigned int addr=0;
