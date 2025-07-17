@@ -39,5 +39,6 @@ private:
     Cache L2;
     cacheResType sim_level1(long addr);
     cacheResType sim_level2(long addr);
+    int cycles;
     
 };

@@ -19,7 +19,7 @@ Cache::Cache(long size, int lineSize, int associativity)
 Cache::~Cache() {}
 
 Memory::Memory(int lineSize)
-    : L1(DRAM_SIZE, lineSize, 4), L2(L2_CACHE_SIZE, 64, 8) {
+    : L1(DRAM_SIZE, lineSize, 4), L2(L2_CACHE_SIZE, 64, 8), cycles(0) {
 }
 
 Memory::~Memory() {}
