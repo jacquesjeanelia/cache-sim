@@ -16,11 +16,14 @@ enum cacheResType {MISS=0, HIT=1};
 class Cache{
     friend class Memory;
 public:
-    Cache(long size, int lineSize, int associativity);
+    Cache(long size, int lineSize, int associativity, int hitTime);
     ~Cache();
 
 private:
+    long size;
     int lineSize;
+    int associativity;
+    int hitTime;
     vector<vector<long>> TAG;
     vector<vector<bool>> V;    
 };
@@ -33,12 +36,11 @@ public:
     Memory(int lineSize);
     ~Memory();
     cacheResType simulate(long addr);
+    int getCycles() const { return cycles; }
 
 private:
     Cache L1;
     Cache L2;
-    cacheResType sim_level1(long addr);
-    cacheResType sim_level2(long addr);
+    cacheResType sim_level(Cache cache, long addr, int storeCycles);
     int cycles;
-    
 };
