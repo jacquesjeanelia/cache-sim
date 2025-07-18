@@ -7,7 +7,6 @@
 using namespace std;
 
 #define		DBG				1
-#define		DRAM_SIZE		(1024*1024*1024)
 #define		L2_CACHE_SIZE		(128*1024)
 #define		L1_CACHE_SIZE		(16*1024)
 
