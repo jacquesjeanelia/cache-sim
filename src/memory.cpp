@@ -48,13 +48,13 @@ cacheResType Memory::sim_level(Cache &cache, long addr, int storeCycles) {
         }
     }
 
-    printLine(cache, line); // Print the current state of the cache line
+    // printLine(cache, line); // Print the current state of the cache line (disabled for performance)
 
     //check line if valid
     for (int i = 0; i < cache.associativity; ++i) {
         if (cache.V[i][line]) {                    // If the line is valid
             if (cache.TAG[i][line] == tag) {       // If the tag matches
-                cout << "Cache Hit: Line " << line << " with tag " << tag << endl;
+                // cout << "Cache Hit: Line " << line << " with tag " << tag << endl;
                 return cacheResType::HIT;
             }
         }
@@ -65,20 +65,20 @@ cacheResType Memory::sim_level(Cache &cache, long addr, int storeCycles) {
         if (!cache.V[i][line]) {           // If the line is not valid
             cache.TAG[i][line] = tag;      // set tag
             cache.V[i][line] = 1;          // mark as valid
-            cout << "Cache Miss: Line " << line << " with tag " << tag << endl;
+            // cout << "Cache Miss: Line " << line << " with tag " << tag << endl;
             return cacheResType::MISS; 
         }
     }
 
     //all valid -> Capacity cacheResType::MISS/Conflict cacheResType::MISS
     int ind = rand_() % cache.associativity;                  // rand select to replace
-    cout << "rand = " << ind << endl;
+    // cout << "rand = " << ind << endl;
     
     cycles += storeCycles;      // add cycles for store
 
     cache.TAG[ind][line] = tag;          // set tag
     cache.V[ind][line] = 1;                // mark as valid
-    cout << "Cache Miss: Line " << line << " set with tag " << tag << endl;
+    // cout << "Cache Miss: Line " << line << " set with tag " << tag << endl;
     return cacheResType::MISS; 
 }
 
@@ -97,17 +97,17 @@ cacheResType Memory::simulate(long addr) {
     cacheResType res = sim_level(L1, addr, 10); // Simulate L1 cache
     if (res == HIT){
         cycles += 1; // Add cycles for L1 hit
-        cout << "\t\t\t\t found at L1"<<endl;
+        // cout << "\t\t\t\t found at L1"<<endl;
     }
     else {
         res = sim_level(L2, addr, 50); // Simulate L2 cache
         if (res == HIT) {
             cycles += 10; // Add cycles for L2 hit
-                    cout << "\t\t\t\t found at L2"<<endl;
+            // cout << "\t\t\t\t found at L2"<<endl;
 
         } else {
             cycles += 100; // Add cycles for DRAM access
-            cout << "\t\t\t\t found at DRAM"<<endl;
+            // cout << "\t\t\t\t found at DRAM"<<endl;
 
         }
     }
