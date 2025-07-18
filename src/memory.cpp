@@ -65,7 +65,6 @@ cacheResType Memory::sim_level(Cache &cache, long addr, int storeCycles) {
         if (!cache.V[i][line]) {           // If the line is not valid
             cache.TAG[i][line] = tag;      // set tag
             cache.V[i][line] = 1;          // mark as valid
-            cycles += storeCycles;      // add cycles for store
             cout << "Cache Miss: Line " << line << " with tag " << tag << endl;
             return cacheResType::MISS; 
         }
@@ -74,6 +73,8 @@ cacheResType Memory::sim_level(Cache &cache, long addr, int storeCycles) {
     //all valid -> Capacity cacheResType::MISS/Conflict cacheResType::MISS
     int ind = rand_() % cache.associativity;                  // rand select to replace
     cout << "rand = " << ind << endl;
+    
+    cycles += storeCycles;      // add cycles for store
 
     cache.TAG[ind][line] = tag;          // set tag
     cache.V[ind][line] = 1;                // mark as valid

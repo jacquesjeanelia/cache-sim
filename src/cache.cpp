@@ -8,7 +8,7 @@
 using namespace std;
 
 #define		DBG				1
-#define		DRAM_SIZE		(1024*1024*1024)
+#define		DRAM_SIZE	    (1024*1024*1024) // still need to multiply by 64
 #define		L2_CACHE_SIZE		(128*1024)
 #define		L1_CACHE_SIZE		(16*1024)
 uint64_t     L1lineSize	;	
@@ -60,7 +60,7 @@ char *msg[2] = {"Miss","Hit"};
 #define		NO_OF_Iterations	100.0		// CHange to 1,000,000
 
 int main(){
-    Memory memory(64);
+    Memory memory(64); // variable line size 
     int cycles = 0;
     for (int i = 0; i < NO_OF_Iterations; ++i) {
         float randomValue = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
