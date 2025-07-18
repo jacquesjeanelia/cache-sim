@@ -28,8 +28,6 @@ private:
     vector<vector<bool>> V;    
 };
 
-enum cacheResType {MISS=0, HIT=1};
-
 class Memory{
     friend class Cache;
 public:
@@ -41,6 +39,7 @@ public:
 private:
     Cache L1;
     Cache L2;
-    cacheResType sim_level(Cache cache, long addr, int storeCycles);
+    cacheResType sim_level(Cache &cache, long addr, int storeCycles);
+    void printLine (Cache &cache, int line);
     int cycles;
 };

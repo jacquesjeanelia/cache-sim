@@ -13,16 +13,15 @@ using namespace std;
 #define		L1_CACHE_SIZE		(16*1024)
 uint64_t     L1lineSize	;	
 
-enum cacheResType {MISS=0, HIT=1};
 
 /* The following implements a random number generator */
-uint32_t m_z = 362436069;
-uint32_t m_w = 521288629;
+uint32_t mz = 362436069;
+uint32_t mw = 521288629;
 
-uint64_t rand_() {
-    m_z = 36969 * (m_z & 0xFFFF) + (m_z >> 16);
-    m_w = 18000 * (m_w & 0xFFFF) + (m_w >> 16);
-    uint64_t result = ((uint64_t(m_z) << 16) + m_w); // 32-bit
+uint64_t rand1() {
+    mz = 36969 * (mz & 0xFFFF) + (mz >> 16);
+    mw = 18000 * (mw & 0xFFFF) + (mw >> 16);
+    uint64_t result = ((uint64_t(mz) << 16) + mw); // 32-bit
     result = (result << 4) ^ (result >> 28);         // stretch to 36 bits with mixing
     return result & 0xFFFFFFFFF; // Mask to 36 bits (9 hex digits)
 }
@@ -36,12 +35,12 @@ unsigned int memGen1()
 unsigned int memGen2()
 {
 	static unsigned int addr=0;
-	return  rand_()%(24*1024);
+	return  rand1()%(24*1024);
 }
 
 unsigned int memGen3()
 {
-	return rand_()%(DRAM_SIZE);
+	return rand1()%(DRAM_SIZE);
 }
 
 unsigned int memGen4()
@@ -61,8 +60,7 @@ char *msg[2] = {"Miss","Hit"};
 #define		NO_OF_Iterations	100.0		// CHange to 1,000,000
 
 int main(){
-
-    Memory memory(16);
+    Memory memory(64);
     int cycles = 0;
     for (int i = 0; i < NO_OF_Iterations; ++i) {
         float randomValue = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
