@@ -93,13 +93,13 @@ void Memory::printLine (Cache &cache, int line){
 }
 
 cacheResType Memory::simulate(long addr) {
-    cacheResType res = sim_level(L1, addr, 1); // Simulate L1 cache
+    cacheResType res = sim_level(L1, addr, 10); // Simulate L1 cache
     if (res == HIT){
         cycles += 1; // Add cycles for L1 hit
         cout << "\t\t\t\t found at L1"<<endl;
     }
     else {
-        res = sim_level(L2, addr, 10); // Simulate L2 cache
+        res = sim_level(L2, addr, 50); // Simulate L2 cache
         if (res == HIT) {
             cycles += 10; // Add cycles for L2 hit
                     cout << "\t\t\t\t found at L2"<<endl;
