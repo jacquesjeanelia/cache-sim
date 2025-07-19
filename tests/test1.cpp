@@ -13,9 +13,9 @@ int main() {
     cout << "✓ Memory object created successfully" << endl;
     
     // Test 2: Simulate a few memory accesses
-    memory.simulate(0x1000);
-    memory.simulate(0x1004);
-    memory.simulate(0x1008);
+    memory.simulate(0x1000, false); // read
+    memory.simulate(0x1004, true);  // write
+    memory.simulate(0x1008, false); // read
     
     int cycles = memory.getCycles();
     cout << "✓ Memory simulation completed. Total cycles: " << cycles << endl;
