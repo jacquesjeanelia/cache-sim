@@ -60,6 +60,7 @@ char *msg[2] = {"Miss","Hit"};
 #define		NO_OF_Iterations	100.0		// CHange to 1,000,000
 
 int main(){
+    srand(time(0));
     Memory memory(64); // variable line size 
     int cycles = 0;
     for (int i = 0; i < NO_OF_Iterations; ++i) {

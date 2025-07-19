@@ -1,16 +1,5 @@
 #include "memory.h"
 
-/* The following implements a random number generator */
-uint32_t m_z = 362436069;
-uint32_t m_w = 521288629;
-
-long rand_() {
-    m_z = 36969 * (m_z & 0xFFFF) + (m_z >> 16);
-    m_w = 18000 * (m_w & 0xFFFF) + (m_w >> 16);
-    long result = ((long(m_z) << 16) + m_w); // 32-bit
-    result = (result << 4) ^ (result >> 28);         // stretch to 36 bits with mixing
-    return result & 0xFFFFFFFFF; // Mask to 36 bits (9 hex digits)
-}
 
 Cache::Cache(long size, int lineSize, int associativity, int hitTime)
     : size(size), lineSize(lineSize), associativity(associativity), hitTime(hitTime), TAG(associativity, vector<long>(size / (lineSize * associativity), 0)), V(associativity, vector<bool>(size / (lineSize * associativity), false)) {
@@ -48,13 +37,13 @@ cacheResType Memory::sim_level(Cache &cache, long addr, int storeCycles) {
         }
     }
 
-    printLine(cache, line); // Print the current state of the cache line
+    //printLine(cache, line); // Print the current state of the cache line
 
     //check line if valid
     for (int i = 0; i < cache.associativity; ++i) {
         if (cache.V[i][line]) {                    // If the line is valid
             if (cache.TAG[i][line] == tag) {       // If the tag matches
-                cout << "Cache Hit: Line " << line << " with tag " << tag << endl;
+                //cout << "Cache Hit: Line " << line << " with tag " << tag << endl;
                 return cacheResType::HIT;
             }
         }
@@ -65,20 +54,20 @@ cacheResType Memory::sim_level(Cache &cache, long addr, int storeCycles) {
         if (!cache.V[i][line]) {           // If the line is not valid
             cache.TAG[i][line] = tag;      // set tag
             cache.V[i][line] = 1;          // mark as valid
-            cout << "Cache Miss: Line " << line << " with tag " << tag << endl;
+            //cout << "Cache Miss: Line " << line << " with tag " << tag << endl;
             return cacheResType::MISS; 
         }
     }
 
     //all valid -> Capacity cacheResType::MISS/Conflict cacheResType::MISS
-    int ind = rand_() % cache.associativity;                  // rand select to replace
+    int ind = rand() % cache.associativity;                  // rand select to replace
     cout << "rand = " << ind << endl;
     
     cycles += storeCycles;      // add cycles for store
 
     cache.TAG[ind][line] = tag;          // set tag
     cache.V[ind][line] = 1;                // mark as valid
-    cout << "Cache Miss: Line " << line << " set with tag " << tag << endl;
+    //cout << "Cache Miss: Line " << line << " set with tag " << tag << endl;
     return cacheResType::MISS; 
 }
 
