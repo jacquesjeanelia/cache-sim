@@ -65,9 +65,10 @@ int main(){
     int cycles = 0;
     for (int i = 0; i < NO_OF_Iterations; ++i) {
         float randomValue = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-        if(randomValue <= 0.35){
-            memory.simulate(memGen1());
-        }
+        if(randomValue <= 0.35 && randomValue > 0.175)  //load
+            memory.simulate(memGen1(), 0);
+        else if (randomValue <= 0.175)                  //store
+            memory.simulate(memGen1(), 1);
         else cycles += 1;    
     }
     cycles += memory.getCycles();

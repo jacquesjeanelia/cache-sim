@@ -24,7 +24,8 @@ private:
     int associativity;
     int hitTime;
     vector<vector<long>> TAG;
-    vector<vector<bool>> V;    
+    vector<vector<bool>> V; 
+    vector<vector<bool>> W;    
 };
 
 class Memory{
@@ -32,13 +33,13 @@ class Memory{
 public:
     Memory(int lineSize);
     ~Memory();
-    cacheResType simulate(long addr);
+    cacheResType simulate(long addr, bool write);
     int getCycles() const { return cycles; }
 
 private:
     Cache L1;
     Cache L2;
-    cacheResType sim_level(Cache &cache, long addr, int storeCycles);
+    cacheResType sim_level(Cache &cache, long addr, int storeCycles, bool write);
     void printLine (Cache &cache, int line);
     int cycles;
 };
