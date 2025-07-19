@@ -29,7 +29,16 @@ cacheResType Memory::sim_level(Cache &cache, long addr, int storeCycles, bool wr
     long tag = addr >> (offsetbits + linebits);
     //cout << "tag: " << tag << endl;
 
-    //printLine(cache, line); // Print the current state of the cache line
+    if (cache.TAG[0].size() == 1){
+        // Resize the cache tag and valid vectors to accommodate the number of lines
+        for (int i = 0; i < cache.associativity; ++i) {
+            cache.TAG[i].resize(numLines, 0); // Initialize with 0
+            cache.V[i].resize(numLines, false); // Initialize with false
+            cache.W[i].resize(numLines, false); // Initialize dirty bits
+        }
+    }
+
+    // printLine(cache, line); // Print the current state of the cache line (disabled for performance)
 
     //check line if valid
     for (int i = 0; i < cache.associativity; ++i) {
@@ -37,7 +46,7 @@ cacheResType Memory::sim_level(Cache &cache, long addr, int storeCycles, bool wr
             if (cache.TAG[i][line] == tag) {       // If the tag matches
                 if (write) 
                     cache.W[i][line] = true;        // Mark as written if it's a write operation  
-                //cout << "Cache Hit: Line " << line << " with tag " << tag << endl;
+                // cout << "Cache Hit: Line " << line << " with tag " << tag << endl;
                 return cacheResType::HIT;
             }
         }
@@ -49,24 +58,23 @@ cacheResType Memory::sim_level(Cache &cache, long addr, int storeCycles, bool wr
             cache.TAG[i][line] = tag;      // set tag
             cache.V[i][line] = 1;          // mark as valid
             if (write) 
-                    cache.W[i][line] = true;
-            //cout << "Cache Miss: Line " << line << " with tag " << tag << endl;
+                cache.W[i][line] = true;
+            // cout << "Cache Miss: Line " << line << " with tag " << tag << endl;
             return cacheResType::MISS; 
         }
     }
 
     //all valid -> Capacity cacheResType::MISS/Conflict cacheResType::MISS
     int ind = rand() % cache.associativity;                  // rand select to replace
-    cout << "rand = " << ind << endl;
+    // cout << "rand = " << ind << endl;
     if (cache.W[ind][line])  // If the line is dirty, we need to write it back
         cycles += storeCycles; // Add cycles for writing back
-    
     
     cache.TAG[ind][line] = tag;          // set tag
     cache.V[ind][line] = 1;                // mark as valid
     if (write) 
         cache.W[ind][line] = true;
-    //cout << "Cache Miss: Line " << line << " set with tag " << tag << endl;
+    // cout << "Cache Miss: Line " << line << " set with tag " << tag << endl;
     return cacheResType::MISS; 
 }
 
@@ -85,17 +93,17 @@ cacheResType Memory::simulate(long addr, bool write) {
     cacheResType res = sim_level(L1, addr, 10, write); // Simulate L1 cache
     if (res == HIT){
         cycles += 1; // Add cycles for L1 hit
-        cout << "\t\t\t\t found at L1"<<endl;
+        // cout << "\t\t\t\t found at L1"<<endl;
     }
     else {
         res = sim_level(L2, addr, 50, write); // Simulate L2 cache
         if (res == HIT) {
             cycles += 10; // Add cycles for L2 hit
-                    cout << "\t\t\t\t found at L2"<<endl;
+            // cout << "\t\t\t\t found at L2"<<endl;
 
         } else {
             cycles += 100; // Add cycles for DRAM access
-            cout << "\t\t\t\t found at DRAM"<<endl;
+            // cout << "\t\t\t\t found at DRAM"<<endl;
 
         }
     }

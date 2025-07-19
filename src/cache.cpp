@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <cmath>
 #include <vector>
+#include <fstream>
+#include <ctime>
 #include "memory.h"
 
 using namespace std;
@@ -13,6 +15,9 @@ using namespace std;
 #define		L1_CACHE_SIZE		(16*1024)
 uint64_t     L1lineSize	;	
 
+// L1 line sizes to test
+const int L1_LINE_SIZES[] = {16, 32, 64, 128};
+const int NUM_LINE_SIZES = 4;
 
 /* The following implements a random number generator */
 uint32_t mz = 362436069;
@@ -55,23 +60,62 @@ unsigned int memGen5()
 	return (addr+=32)%(64*16*1024);
 }
 
+// Function pointers for memory generators
+typedef unsigned int (*MemGenFunc)();
+MemGenFunc memGens[] = {memGen1, memGen2, memGen3, memGen4, memGen5};
+const char* memGenNames[] = {"Sequential", "Random 24KB", "Random Full", "Sequential 4KB", "Strided"};
+const int NUM_MEM_GENS = 5;
+
 char *msg[2] = {"Miss","Hit"};
 
-#define		NO_OF_Iterations	100.0		// CHange to 1,000,000
+#define		NO_OF_Iterations	1000000		// 1M iterations as required
 
-int main(){
-    srand(time(0));
-    Memory memory(64); // variable line size 
+// Function to run simulation for a specific configuration
+float runSimulation(int lineSize, MemGenFunc memGen, const char* genName) {
+    Memory memory(lineSize);
     int cycles = 0;
+    
     for (int i = 0; i < NO_OF_Iterations; ++i) {
         float randomValue = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
         if(randomValue <= 0.35 && randomValue > 0.175)  //load
-            memory.simulate(memGen1(), 0);
+            memory.simulate(memGen(), 0);
         else if (randomValue <= 0.175)                  //store
-            memory.simulate(memGen1(), 1);
+            memory.simulate(memGen(), 1);
         else cycles += 1;    
     }
     cycles += memory.getCycles();
-    float CPI = cycles / NO_OF_Iterations;
-    cout << "Average Cycles Per Instruction (CPI) = " << CPI << endl; 
+    float CPI = static_cast<float>(cycles) / NO_OF_Iterations;
+    
+    cout << "Line Size: " << lineSize << "B, Generator: " << genName 
+         << ", CPI: " << fixed << setprecision(4) << CPI << endl;
+    
+    return CPI;
+}
+
+int main(){
+    srand(time(0));
+    cout << "Cache Simulator - Two-Level Performance Analysis" << endl;
+    cout << "================================================" << endl;
+    
+    // Create results file
+    ofstream resultsFile("simulation_results.csv");
+    resultsFile << "Line_Size,Memory_Generator,CPI" << endl;
+    
+    // Run all combinations
+    for (int lineSizeIdx = 0; lineSizeIdx < NUM_LINE_SIZES; lineSizeIdx++) {
+        int lineSize = L1_LINE_SIZES[lineSizeIdx];
+        cout << "\nTesting L1 Line Size: " << lineSize << "B" << endl;
+        cout << "----------------------------------------" << endl;
+        
+        for (int genIdx = 0; genIdx < NUM_MEM_GENS; genIdx++) {
+            float cpi = runSimulation(lineSize, memGens[genIdx], memGenNames[genIdx]);
+            resultsFile << lineSize << "," << memGenNames[genIdx] << "," << cpi << endl;
+        }
+    }
+    
+    resultsFile.close();
+    cout << "\nResults saved to simulation_results.csv" << endl;
+    cout << "Total simulations run: " << NUM_LINE_SIZES * NUM_MEM_GENS << endl;
+    
+    return 0;
 }
