@@ -42,7 +42,7 @@ public:
 private:
     Cache L1;
     Cache L2;
-    cacheResType sim_level(Cache &cache, long addr, int storeCycles, bool write);
+    cacheResType sim_level(Cache &cache, long addr, int storeCycles, bool write, int level);
     void printLine (Cache &cache, int line);
     int cycles;
 };

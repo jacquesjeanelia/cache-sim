@@ -1,0 +1,21 @@
+Line_Size,Memory_Generator,CPI
+16,Sequential,1.68389
+16,Random 24KB,3.22735
+16,Random Full,31.9394
+16,Sequential 4KB,1.00486
+16,Strided,19.8157
+32,Sequential,1.4663
+32,Random 24KB,3.22516
+32,Random Full,31.9879
+32,Sequential 4KB,1.00371
+32,Strided,19.7485
+64,Sequential,1.32603
+64,Random 24KB,3.2329
+64,Random Full,31.9712
+64,Sequential 4KB,1.00314
+64,Strided,16.3503
+128,Sequential,1.16145
+128,Random 24KB,3.23382
+128,Random Full,39.8081
+128,Sequential 4KB,1.00157
+128,Strided,8.67941

@@ -18,9 +18,6 @@ uint64_t     L1lineSize	;
 // L1 line sizes to test
 const int L1_LINE_SIZES[] = {16, 32, 64, 128};
 const int NUM_LINE_SIZES = 4;
-// L1 line sizes to test
-const int L1_LINE_SIZES[] = {16, 32, 64, 128};
-const int NUM_LINE_SIZES = 4;
 
 /* The following implements a random number generator */
 uint32_t mz = 362436069;
@@ -62,12 +59,6 @@ unsigned int memGen5()
 	static unsigned int addr=0;
 	return (addr+=32)%(64*16*1024);
 }
-
-// Function pointers for memory generators
-typedef unsigned int (*MemGenFunc)();
-MemGenFunc memGens[] = {memGen1, memGen2, memGen3, memGen4, memGen5};
-const char* memGenNames[] = {"Sequential", "Random 24KB", "Random Full", "Sequential 4KB", "Strided"};
-const int NUM_MEM_GENS = 5;
 
 // Function pointers for memory generators
 typedef unsigned int (*MemGenFunc)();

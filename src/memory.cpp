@@ -19,7 +19,7 @@ Memory::Memory(int lineSize)
 
 Memory::~Memory() {}
 
-cacheResType Memory::sim_level(Cache &cache, long addr, int storeCycles, bool write) {
+cacheResType Memory::sim_level(Cache &cache, long addr, int storeCycles, bool write, int level) {
     //cout << "num of lines: "<< numLines << endl;
     int linebits = log2(cache.numLines);
 
@@ -33,21 +33,15 @@ cacheResType Memory::sim_level(Cache &cache, long addr, int storeCycles, bool wr
     long tag = addr >> (cache.offsetbits + linebits);
     //cout << "tag: " << tag << endl;
 
-    if (cache.TAG[0].size() == 1){
-        // Resize the cache tag and valid vectors to accommodate the number of lines
-        for (int i = 0; i < cache.associativity; ++i) {
-            cache.TAG[i].resize(numLines, 0); // Initialize with 0
-            cache.V[i].resize(numLines, false); // Initialize with false
-        }
-    }
-
-    printLine(cache, line); // Print the current state of the cache line
+    // printLine(cache, line); // Print the current state of the cache line (disabled for performance)
 
     //check line if valid
     for (int i = 0; i < cache.associativity; ++i) {
         if (cache.V[i][line]) {                    // If the line is valid
             if (cache.TAG[i][line] == tag) {       // If the tag matches
-                cout << "Cache Hit: Line " << line << " with tag " << tag << endl;
+                if (write) 
+                    cache.W[i][line] = true;        // Mark as written if it's a write operation  
+                // cout << "Cache Hit: Line " << line << " with tag " << tag << endl;
                 return cacheResType::HIT;
             }
         }
@@ -58,20 +52,29 @@ cacheResType Memory::sim_level(Cache &cache, long addr, int storeCycles, bool wr
         if (!cache.V[i][line]) {           // If the line is not valid
             cache.TAG[i][line] = tag;      // set tag
             cache.V[i][line] = 1;          // mark as valid
-            cout << "Cache Miss: Line " << line << " with tag " << tag << endl;
+            if (write) 
+                cache.W[i][line] = true;
+            // cout << "Cache Miss: Line " << line << " with tag " << tag << endl;
             return cacheResType::MISS; 
         }
     }
 
     //all valid -> Capacity cacheResType::MISS/Conflict cacheResType::MISS
-    int ind = rand_() % cache.associativity;                  // rand select to replace
-    cout << "rand = " << ind << endl;
+    int ind = rand() % cache.associativity;                  // rand select to replace
+    // cout << "rand = " << ind << endl;
+    if (cache.W[ind][line])  // If the line is dirty, we need to write it back
+        cycles += storeCycles; // Add cycles for writing back
     
-    cycles += storeCycles;      // add cycles for store
-
     cache.TAG[ind][line] = tag;          // set tag
     cache.V[ind][line] = 1;                // mark as valid
-    cout << "Cache Miss: Line " << line << " set with tag " << tag << endl;
+    if (write){ 
+        cache.W[ind][line] = true;
+        if (level == 1){ 
+            long oldAddr = (cache.TAG[ind][line] << (linebits + cache.offsetbits)) | (line << cache.offsetbits); // reconstruct old addres
+            sim_level(L2, oldAddr, 50, true, 2); // Write back to L2
+        }
+    }
+    // cout << "Cache Miss: Line " << line << " set with tag " << tag << endl;
     return cacheResType::MISS; 
 }
 
@@ -87,21 +90,20 @@ void Memory::printLine (Cache &cache, int line){
 }
 
 cacheResType Memory::simulate(long addr, bool write) {
-    cacheResType res = sim_level(L1, addr, 10, write); // Simulate L1 cache
+    cacheResType res = sim_level(L1, addr, 10, write, 1); // Simulate L1 cache
     if (res == HIT){
         cycles += 1; // Add cycles for L1 hit
         // cout << "\t\t\t\t found at L1"<<endl;
     }
     else {
-        res = sim_level(L2, addr, 50, write); // Simulate L2 cache
+        res = sim_level(L2, addr, 50, write, 2); // Simulate L2 cache
         if (res == HIT) {
             cycles += 10; // Add cycles for L2 hit
             // cout << "\t\t\t\t found at L2"<<endl;
 
         } else {
-            cycles += 100; // Add cycles for DRAM access
-            cout << "\t\t\t\t found at DRAM"<<endl;
-
+            cycles += 50; // Add cycles for DRAM access
+            // cout << "\t\t\t\t found at DRAM"<<endl;
         }
     }
     return res;
