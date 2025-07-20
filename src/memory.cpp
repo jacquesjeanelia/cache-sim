@@ -13,7 +13,7 @@ Memory::Memory(int lineSize)
 
 Memory::~Memory() {}
 
-cacheResType Memory::sim_level(Cache &cache, long addr, int storeCycles, bool write) {
+cacheResType Memory::sim_level(Cache &cache, long addr, int storeCycles, bool write, int level) {
     int offsetbits = log2(cache.lineSize);
     int numLines = cache.size / (cache.lineSize * cache.associativity);
     //cout << "num of lines: "<< numLines << endl;
@@ -49,7 +49,7 @@ cacheResType Memory::sim_level(Cache &cache, long addr, int storeCycles, bool wr
             cache.TAG[i][line] = tag;      // set tag
             cache.V[i][line] = 1;          // mark as valid
             if (write) 
-                    cache.W[i][line] = true;
+                cache.W[i][line] = true;
             //cout << "Cache Miss: Line " << line << " with tag " << tag << endl;
             return cacheResType::MISS; 
         }
@@ -58,14 +58,20 @@ cacheResType Memory::sim_level(Cache &cache, long addr, int storeCycles, bool wr
     //all valid -> Capacity cacheResType::MISS/Conflict cacheResType::MISS
     int ind = rand() % cache.associativity;                  // rand select to replace
     cout << "rand = " << ind << endl;
-    if (cache.W[ind][line])  // If the line is dirty, we need to write it back
+    if (cache.W[ind][line]){  // If the line is dirty, we need to write it back
         cycles += storeCycles; // Add cycles for writing back
-    
-    
+        if (level == 1){ 
+            long oldAddr = (cache.TAG[ind][line] << (linebits + offsetbits)) | (line << offsetbits); // reconstruct old addres
+            sim_level(L2, oldAddr, 50, true, 2); // Write back to L2
+        }
+    }
+
     cache.TAG[ind][line] = tag;          // set tag
     cache.V[ind][line] = 1;                // mark as valid
     if (write) 
         cache.W[ind][line] = true;
+    else
+        cache.W[ind][line] = false; 
     //cout << "Cache Miss: Line " << line << " set with tag " << tag << endl;
     return cacheResType::MISS; 
 }
@@ -82,13 +88,13 @@ void Memory::printLine (Cache &cache, int line){
 }
 
 cacheResType Memory::simulate(long addr, bool write) {
-    cacheResType res = sim_level(L1, addr, 10, write); // Simulate L1 cache
+    cacheResType res = sim_level(L1, addr, 10, write, 1); // Simulate L1 cache
     if (res == HIT){
         cycles += 1; // Add cycles for L1 hit
         cout << "\t\t\t\t found at L1"<<endl;
     }
     else {
-        res = sim_level(L2, addr, 50, write); // Simulate L2 cache
+        res = sim_level(L2, addr, 50, write, 2); // Simulate L2 cache
         if (res == HIT) {
             cycles += 10; // Add cycles for L2 hit
                     cout << "\t\t\t\t found at L2"<<endl;
