@@ -4,6 +4,7 @@
 #include <cmath>
 #include <vector>
 #include <fstream>
+#include <ctime>
 #include "memory.h"
 
 using namespace std;
@@ -14,6 +15,9 @@ using namespace std;
 #define		L1_CACHE_SIZE		(16*1024)
 uint64_t     L1lineSize	;	
 
+// L1 line sizes to test
+const int L1_LINE_SIZES[] = {16, 32, 64, 128};
+const int NUM_LINE_SIZES = 4;
 // L1 line sizes to test
 const int L1_LINE_SIZES[] = {16, 32, 64, 128};
 const int NUM_LINE_SIZES = 4;
@@ -65,9 +69,15 @@ MemGenFunc memGens[] = {memGen1, memGen2, memGen3, memGen4, memGen5};
 const char* memGenNames[] = {"Sequential", "Random 24KB", "Random Full", "Sequential 4KB", "Strided"};
 const int NUM_MEM_GENS = 5;
 
+// Function pointers for memory generators
+typedef unsigned int (*MemGenFunc)();
+MemGenFunc memGens[] = {memGen1, memGen2, memGen3, memGen4, memGen5};
+const char* memGenNames[] = {"Sequential", "Random 24KB", "Random Full", "Sequential 4KB", "Strided"};
+const int NUM_MEM_GENS = 5;
+
 char *msg[2] = {"Miss","Hit"};
 
-#define		NO_OF_Iterations	1000000		// 1M iterations as required
+#define		NO_OF_Iterations	1000000.0		// 1M iterations as required
 
 // Function to run simulation for a specific configuration
 float runSimulation(int lineSize, MemGenFunc memGen, const char* genName) {
@@ -76,9 +86,10 @@ float runSimulation(int lineSize, MemGenFunc memGen, const char* genName) {
     
     for (int i = 0; i < NO_OF_Iterations; ++i) {
         float randomValue = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-        if(randomValue <= 0.35){
-            memory.simulate(memGen());
-        }
+        if(randomValue <= 0.35 && randomValue > 0.175)  //load
+            memory.simulate(memGen(), 0);
+        else if (randomValue <= 0.175)                  //store
+            memory.simulate(memGen(), 1);
         else cycles += 1;    
     }
     cycles += memory.getCycles();
@@ -91,6 +102,7 @@ float runSimulation(int lineSize, MemGenFunc memGen, const char* genName) {
 }
 
 int main(){
+    srand(time(0));
     cout << "Cache Simulator - Two-Level Performance Analysis" << endl;
     cout << "================================================" << endl;
     
