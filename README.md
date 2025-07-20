@@ -6,13 +6,6 @@ A comprehensive cache simulator implementing a realistic two-level cache hierarc
 
 This project implements a two-level cache simulator that models realistic CPU cache behavior with L1 and L2 caches, incorporating actual miss penalties and quantifying performance through effective cycles per instruction (CPI). The simulator systematically tests different configurations to identify optimal cache parameters and understand the relationship between spatial locality and cache performance.
 
-## Authors
-
-- **Yomna Othman**
-- **Ayla Saleh** 
-- **Jacques Elia**
-
-*CSCE 2303: Computer Organization - Dr. Mohamed Shalan - Summer 2025*
 
 ## Features
 
@@ -73,16 +66,23 @@ cache-sim/
 ## Prerequisites
 
 ### System Requirements
-- **Compiler**: GCC with C++11 support
+- **Compiler**: GCC with C++11 support (or Clang on macOS)
 - **Python**: 3.x with the following packages:
   - pandas
   - matplotlib
   - seaborn
   - numpy
 
-### Windows-Specific
+### Platform-Specific Requirements
+
+#### Windows
 - MSYS2/MinGW64 environment (for GCC)
 - Python 3.x installed and accessible via `python` command
+
+#### macOS
+- Xcode Command Line Tools (`xcode-select --install`)
+- Homebrew recommended for package management
+- Python 3.x (via Homebrew: `brew install python3`)
 
 ## Installation & Setup
 
@@ -97,8 +97,15 @@ cache-sim/
    make install-deps
    ```
    Or manually:
+   
+   **Windows/Linux:**
    ```bash
    pip install pandas matplotlib seaborn numpy
+   ```
+   
+   **macOS:**
+   ```bash
+   pip3 install pandas matplotlib seaborn numpy
    ```
 
 3. **Check project status**:
@@ -212,12 +219,19 @@ The simulator provides comprehensive performance analysis through:
 ### Common Issues
 
 1. **Compilation Errors**:
-   - Ensure GCC with C++11 support is installed
-   - Check that MSYS2/MinGW64 is properly configured on Windows
+   - **Windows**: Ensure GCC with C++11 support is installed and MSYS2/MinGW64 is properly configured
+   - **macOS**: Install Xcode Command Line Tools with `xcode-select --install`
+   - **Linux**: Install build-essential package (`sudo apt-get install build-essential` on Ubuntu/Debian)
 
 2. **Python Import Errors**:
-   - Install missing packages: `pip install pandas matplotlib seaborn numpy`
+   - **Windows/Linux**: Install missing packages with `pip install pandas matplotlib seaborn numpy`
+   - **macOS**: Use `pip3 install pandas matplotlib seaborn numpy`
    - Verify Python 3.x is being used
+
+3. **Make Command Not Found**:
+   - **Windows**: Ensure MSYS2 is properly installed and in PATH
+   - **macOS**: Install via Xcode Command Line Tools or Homebrew
+   - **Linux**: Install make package (`sudo apt-get install make` on Ubuntu/Debian)
 
 3. **Graph Generation Fails**:
    - Ensure `simulation_results.csv` exists (run simulation first)
@@ -226,30 +240,13 @@ The simulator provides comprehensive performance analysis through:
 ### Debug Mode
 Enable debug output by setting `DBG 1` in `src/cache.cpp` and recompiling.
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/new-feature`)
-3. Commit your changes (`git commit -am 'Add new feature'`)
-4. Push to the branch (`git push origin feature/new-feature`)
-5. Create a Pull Request
-
 ## Resources & Links
 
-- **Source Code**: [GitHub Repository](https://github.com/jacquesjeanelia/cache-sim)
 - **Analysis Data**: [Google Sheets](https://docs.google.com/spreadsheets/d/1BaQfZ4zI6AHMglTwkRq3I1hvB3c_4frG/edit?usp=sharing&ouid=109798990182149835238&rtpof=true&sd=true)
 - **Documentation**: See project report for detailed analysis and findings
-
-## License
-
-This project is developed as part of academic coursework for CSCE 2303: Computer Organization.
 
 ## Acknowledgments
 
 - Dr. Mohamed Shalan for project guidance and requirements
 - Python libraries: matplotlib, pandas, seaborn, numpy for analysis capabilities
-- MSYS2/MinGW64 for Windows development environment
-
----
-
-*For detailed performance analysis and findings, refer to the complete project report included in this repository.*
+- Development environments: MSYS2/MinGW64 (Windows), Xcode Command Line Tools (macOS)
