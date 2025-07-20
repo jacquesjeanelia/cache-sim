@@ -57,7 +57,7 @@ unsigned int memGen5()
 
 char *msg[2] = {"Miss","Hit"};
 
-#define		NO_OF_Iterations	100.0		// CHange to 1,000,000
+#define		NO_OF_Iterations	1000000.0		// CHange to 1,000,000
 
 int main(){
     srand(time(0));
@@ -66,9 +66,9 @@ int main(){
     for (int i = 0; i < NO_OF_Iterations; ++i) {
         float randomValue = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
         if(randomValue <= 0.35 && randomValue > 0.175)  //load
-            memory.simulate(memGen1(), 0);
+            memory.simulate(memGen3(), 0);
         else if (randomValue <= 0.175)                  //store
-            memory.simulate(memGen1(), 1);
+            memory.simulate(memGen3(), 1);
         else cycles += 1;    
     }
     cycles += memory.getCycles();

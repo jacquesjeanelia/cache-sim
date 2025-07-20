@@ -100,7 +100,7 @@ cacheResType Memory::simulate(long addr, bool write) {
                     cout << "\t\t\t\t found at L2"<<endl;
 
         } else {
-            cycles += 100; // Add cycles for DRAM access
+            cycles += 50; // Add cycles for DRAM access
             cout << "\t\t\t\t found at DRAM"<<endl;
 
         }
