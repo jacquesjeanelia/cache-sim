@@ -68,7 +68,7 @@ const int NUM_MEM_GENS = 5;
 
 char *msg[2] = {"Miss","Hit"};
 
-#define		NO_OF_Iterations	1000000		// 1M iterations as required
+#define		NO_OF_Iterations	1000000.0		// 1M iterations as required
 
 // Function to run simulation for a specific configuration
 float runSimulation(int lineSize, MemGenFunc memGen, const char* genName) {

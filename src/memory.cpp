@@ -2,7 +2,13 @@
 
 
 Cache::Cache(long size, int lineSize, int associativity, int hitTime)
-    : size(size), lineSize(lineSize), associativity(associativity), hitTime(hitTime), TAG(associativity, vector<long>(size / (lineSize * associativity), 0)), V(associativity, vector<bool>(size / (lineSize * associativity), false)), W(associativity, vector<bool>(size / (lineSize * associativity), false)) {
+    : size(size), lineSize(lineSize), associativity(associativity), hitTime(hitTime) {
+    offsetbits = log2(lineSize);
+    numLines = size / (lineSize * associativity);
+    linebits = log2(numLines);
+    TAG.resize(associativity, vector<long>(numLines, 0)); 
+    V.resize(associativity, vector<bool>(numLines, false)); 
+    W.resize(associativity, vector<bool>(numLines, false)); 
 }
 
 Cache::~Cache() {}
@@ -14,29 +20,18 @@ Memory::Memory(int lineSize)
 Memory::~Memory() {}
 
 cacheResType Memory::sim_level(Cache &cache, long addr, int storeCycles, bool write) {
-    int offsetbits = log2(cache.lineSize);
-    int numLines = cache.size / (cache.lineSize * cache.associativity);
     //cout << "num of lines: "<< numLines << endl;
-    int linebits = log2(numLines);
+    int linebits = log2(cache.numLines);
 
     //split into components
-    long offset = addr & ((1 << offsetbits) - 1);
-    //cout << "Offset: " << offset << "\tbits: " << offsetbits << endl;
+    long offset = addr & ((1 << cache.offsetbits) - 1);
+    //cout << "Offset: " << offset << "\tbits: " << cache.offsetbits << endl;
 
-    long line = (addr >> offsetbits) & ((1 << linebits) - 1);
+    long line = (addr >> cache.offsetbits) & ((1 << linebits) - 1);
     //cout << "line: " << line << endl << "bits: " << linebits << endl;
 
-    long tag = addr >> (offsetbits + linebits);
+    long tag = addr >> (cache.offsetbits + linebits);
     //cout << "tag: " << tag << endl;
-
-    if (cache.TAG[0].size() == 1){
-        // Resize the cache tag and valid vectors to accommodate the number of lines
-        for (int i = 0; i < cache.associativity; ++i) {
-            cache.TAG[i].resize(numLines, 0); // Initialize with 0
-            cache.V[i].resize(numLines, false); // Initialize with false
-            cache.W[i].resize(numLines, false); // Initialize dirty bits
-        }
-    }
 
     // printLine(cache, line); // Print the current state of the cache line (disabled for performance)
 
@@ -102,9 +97,8 @@ cacheResType Memory::simulate(long addr, bool write) {
             // cout << "\t\t\t\t found at L2"<<endl;
 
         } else {
-            cycles += 100; // Add cycles for DRAM access
+            cycles += 50; // Add cycles for DRAM access
             // cout << "\t\t\t\t found at DRAM"<<endl;
-
         }
     }
     return res;

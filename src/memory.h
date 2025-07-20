@@ -23,6 +23,9 @@ private:
     int lineSize;
     int associativity;
     int hitTime;
+    int offsetbits;
+    int linebits;
+    int numLines;
     vector<vector<long>> TAG;
     vector<vector<bool>> V; 
     vector<vector<bool>> W;    
